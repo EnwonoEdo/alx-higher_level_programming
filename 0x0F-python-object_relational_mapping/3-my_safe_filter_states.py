@@ -1,27 +1,15 @@
 #!/usr/bin/python3
-""" filter states with sql inj guard"""
-import MySQLdb
+"""SQL injection"""
 from sys import argv
+import MySQLdb
 
 
-def select_states():
-    """ access database print states by input """
-    db = MySQLdb.connect(
-        host='localhost',
-        port=3306,
-        user=argv[1],
-        passwd=argv[2],
-        db=argv[3]
-    )
-    cur = db.cursor()
-    sql_string = "SELECT * FROM states WHERE name \
-        LIKE BINARY %s"
-    cur.execute(sql_string, (argv[4],))
-    rows = cur.fetchall()
-    for row in rows:
-        print(row)
-    cur.close()
-    db.close()
-
-if __name__ == "__main__":
-    select_states()
+if __name__ == '__main__':
+    user, password, database, state = argv[1], argv[2], argv[3], argv[4]
+    db = MySQLdb.connect(host="localhost",
+                         user=user, passwd=password, db=database)
+    db = db.cursor()
+    db.execute("""SELECT * FROM states WHERE name=%s ORDER BY id""", (state,))
+    r = db.fetchall()
+    for i in r:
+        print(i)
