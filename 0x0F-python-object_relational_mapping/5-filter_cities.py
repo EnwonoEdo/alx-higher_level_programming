@@ -1,39 +1,25 @@
 #!/usr/bin/python3
-""" cities by state """
-import MySQLdb
+"""Script that takes in the name of a state as an
+argument and lists all cities of that state, using
+the database hbtn_0e_4_usa
+"""
 from sys import argv
+import MySQLdb
 
 
-def select_cities():
-    """ access database print states by input """
-    db = MySQLdb.connect(
-        host='localhost',
-        port=3306,
-        user=argv[1],
-        passwd=argv[2],
-        db=argv[3]
-    )
-    cur = db.cursor()
-    sql_string = "SELECT cities.name FROM cities \
-        INNER JOIN states ON cities.state_id = states.id \
-        WHERE states.name LIKE BINARY %s ORDER BY cities.id"
-    cur.execute(sql_string, (argv[4],))
-    rows = cur.fetchall()
-    row_count = 0
-    row_end = len(rows)
-    if rows:
-        for row in rows:
-            city = str(row).strip("(')")
-            city = city.replace("',", "")
-            row_count += 1
-            if row_count == row_end:
-                print(city)
-            else:
-                print(city, end=", ")
-    else:
-        print("")
-    cur.close()
-    db.close()
+if __name__ == '__main__':
+    user, password, database, state = argv[1], argv[2], argv[3], argv[4]
+    db = MySQLdb.connect(host="localhost",
+                         user=user, passwd=password, db=database)
+    db = db.cursor()
+    db.execute("""
+    SELECT cities.name
+    FROM cities
+    JOIN states
+    ON state_id=states.id
+    WHERE states.name LIKE BINARY %s
+    ORDER BY cities.id
+    """, (state,))
 
-if __name__ == "__main__":
-    select_cities()
+    r = db.fetchall()
+    print(", ".join([row[0] for row in r]))
