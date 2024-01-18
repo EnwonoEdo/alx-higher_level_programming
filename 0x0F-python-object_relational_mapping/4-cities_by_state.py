@@ -1,27 +1,17 @@
 #!/usr/bin/python3
-""" cities by state """
-import MySQLdb
+"""script that lists all cities from the database hbtn_0e_4_usa
+"""
 from sys import argv
+import MySQLdb
 
 
-def select_cities():
-    """ access database print states by input """
-    db = MySQLdb.connect(
-        host='localhost',
-        port=3306,
-        user=argv[1],
-        passwd=argv[2],
-        db=argv[3]
-    )
-    cur = db.cursor()
-    sql_string = "SELECT cities.id, cities.name, states.name FROM cities \
-        INNER JOIN states ON cities.state_id = states.id ORDER BY cities.id"
-    cur.execute(sql_string)
-    rows = cur.fetchall()
-    for row in rows:
-        print(row)
-    cur.close()
-    db.close()
-
-if __name__ == "__main__":
-    select_cities()
+if __name__ == '__main__':
+    user, password, database = argv[1], argv[2], argv[3]
+    db = MySQLdb.connect(host="localhost", user=user,
+                         passwd=password, db=database)
+    db = db.cursor()
+    db.execute("""SELECT cities.id, cities.name, states.name FROM cities
+    JOIN states ON state_id=states.id ORDER BY cities.id""")
+    r = db.fetchall()
+    for i in r:
+        print(i)
